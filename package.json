@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "extraction": "tsx app/\\(1-extraction\\)/extraction.ts",
+    "model-comparison": "tsx app/\\(1-extraction\\)/model-comparison.ts",
     "classification": "tsx app/\\(2-classification\\)/classification.ts",
     "invisible-ai:compare": "tsx app/\\(2-invisible-ai\\)/test-structured.ts",
     "invisible-ai:demo": "tsx app/\\(2-invisible-ai\\)/invisible-ai-demo.ts"
@@ -41,7 +42,7 @@
     "eslint": "^9.22.0",
     "eslint-config-next": "15.4.8",
     "tailwindcss": "^4.0.0",
-    "tsx": "^4.19.2",
+    "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.6",
     "typescript": "^5.9.2"
   }
