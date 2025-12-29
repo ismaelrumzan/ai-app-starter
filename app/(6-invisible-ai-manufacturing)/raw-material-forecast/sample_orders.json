@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "text": "Order #12345 from ABC Manufacturing. Need 500 tons of SS304 steel, thickness 5mm, width 1500mm, length 6000mm. Delivery required by 2024-02-15. Standard quality requirements."
+  },
+  {
+    "id": 2,
+    "text": "Customer: XYZ Corp\nOrder Ref: ORD-67890\nProduct: SS316 stainless steel\nQuantity: 300 tons\nDimensions: 3mm x 1200mm x 5000mm\nDelivery: 2024-02-20\nSpecial: Food grade certification required"
+  },
+  {
+    "id": 3,
+    "text": "From scanned document:\nORDER FORM\nCompany: Steel Works Ltd\nOrder: #SW-2024-001\nMaterial: Grade SS304\nAmount: 400 tons\nSize: 6mm thickness, 1800mm width\nLength: Custom (6000-8000mm)\nRequired: March 1, 2024"
+  }
+]
+

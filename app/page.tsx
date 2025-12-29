@@ -11,35 +11,58 @@ export default function Home() {
         </p>
 
         <div className="grid gap-6">
-          <Link
-            href="/summarization"
-            className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
-          >
-            <h2 className="text-2xl font-semibold mb-2 text-gray-900">Lesson 3: Summarization</h2>
-            <p className="text-gray-600">
-              Learn how to use AI to summarize text content and messages.
-            </p>
-          </Link>
+          <div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">Standard Lessons</h2>
+            <div className="grid gap-4">
+              <Link
+                href="/summarization"
+                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Lesson 3: Summarization</h3>
+                <p className="text-gray-600">
+                  Learn how to use AI to summarize text content and messages.
+                </p>
+              </Link>
 
-          <Link
-            href="/extraction"
-            className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
-          >
-            <h2 className="text-2xl font-semibold mb-2 text-gray-900">Lesson 4: Extraction</h2>
-            <p className="text-gray-600">
-              Extract structured data from unstructured text using AI.
-            </p>
-          </Link>
+              <Link
+                href="/extraction"
+                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Lesson 4: Extraction</h3>
+                <p className="text-gray-600">
+                  Extract structured data from unstructured text using AI.
+                </p>
+              </Link>
 
-          <Link
-            href="/chat"
-            className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
-          >
-            <h2 className="text-2xl font-semibold mb-2 text-gray-900">Lesson 5: Chatbot</h2>
-            <p className="text-gray-600">
-              Build an interactive chatbot with the Vercel AI SDK.
+              <Link
+                href="/chat"
+                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Lesson 5: Chatbot</h3>
+                <p className="text-gray-600">
+                  Build an interactive chatbot with the Vercel AI SDK.
+                </p>
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">Manufacturing Examples</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              AI implementations for steel manufacturing plant operations
             </p>
-          </Link>
+            <div className="grid gap-4">
+              <Link
+                href="/manufacturing/operator-assistant"
+                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">Operator Assistant</h3>
+                <p className="text-gray-600">
+                  Chatbot with tool calling for querying production status and work orders.
+                </p>
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-200">
