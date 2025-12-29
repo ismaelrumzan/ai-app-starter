@@ -11,7 +11,8 @@
     "model-comparison": "tsx app/\\(1-extraction\\)/model-comparison.ts",
     "classification": "tsx app/\\(2-classification\\)/classification.ts",
     "invisible-ai:compare": "tsx app/\\(2-invisible-ai\\)/test-structured.ts",
-    "invisible-ai:demo": "tsx app/\\(2-invisible-ai\\)/invisible-ai-demo.ts"
+    "invisible-ai:demo": "tsx app/\\(2-invisible-ai\\)/invisible-ai-demo.ts",
+    "manufacturing:forecast": "tsx app/\\(6-invisible-ai-manufacturing\\)/raw-material-forecast/raw-material-forecast.ts"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^1.0.0",
