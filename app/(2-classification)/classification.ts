@@ -1,9 +1,9 @@
 import dotenvFlow from "dotenv-flow";
 dotenvFlow.config();
 
-import supportRequests from "./support_requests.json";
-import { z } from "zod";
-import { generateText, Output } from "ai";
+// import supportRequests from "./support_requests.json";
+// import { z } from "zod";
+// import { generateText, Output } from "ai";
 
 async function main() {
   console.log("Asking AI to classify support requests...");

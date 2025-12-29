@@ -1,6 +1,18 @@
 import { tool } from "ai";
 import { z } from "zod";
 
+interface WorkOrderData {
+  workOrderId: string;
+  status: string;
+  progress: number;
+  productGrade: string;
+  quantity: number;
+  customerName: string;
+  expectedCompletion?: string;
+  completedAt?: string;
+  currentStage: string;
+}
+
 export const getWorkOrderStatus = tool({
   description:
     "Get the current status and progress of a work order from the MES system. Can find orders by work order ID (various formats like WO-12345, #67890, ORD-2024-001) or by customer name.",
@@ -20,7 +32,7 @@ export const getWorkOrderStatus = tool({
     try {
       // In production, this would query your MES API
       // For now, simulate with sample data
-      const mockData: Record<string, any> = {
+      const mockData: Record<string, WorkOrderData> = {
         "WO-12345": {
           workOrderId: "WO-12345",
           status: "in_progress",
@@ -39,6 +51,7 @@ export const getWorkOrderStatus = tool({
           quantity: 300,
           customerName: "XYZ Corp",
           completedAt: "2024-01-15T12:30:00Z",
+          currentStage: "Completed",
         },
         "ORD-2024-001": {
           workOrderId: "ORD-2024-001",
@@ -67,7 +80,7 @@ export const getWorkOrderStatus = tool({
 
       // If searching by customer name
       if (customerName && !workOrderId) {
-        const found = Object.values(mockData).find((wo: any) =>
+        const found = Object.values(mockData).find((wo) =>
           wo.customerName?.toLowerCase().includes(customerName.toLowerCase())
         );
         return (

@@ -38,9 +38,11 @@ export interface MaterialRequirement {
   reasoning: string;
 }
 
+export type MaterialChart = Record<string, Record<string, number>>;
+
 export async function calculateMaterialRequirements(
   orderDetails: ExtractedOrder,
-  materialChart: any
+  materialChart: MaterialChart
 ): Promise<MaterialRequirement> {
   const { object } = await generateObject({
     model: "openai/gpt-4.1",
@@ -50,4 +52,5 @@ export async function calculateMaterialRequirements(
 
   return object;
 }
+
 

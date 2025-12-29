@@ -184,9 +184,8 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function Page() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, isLoading } = useChat({
-    api: "/api/chat",
-  });
+  const { messages, sendMessage, status } = useChat();
+  const isLoading = status === "streaming" || status === "submitted";
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto">
@@ -217,10 +216,7 @@ export default function Page() {
                 <Card className="max-w-[80%] bg-primary text-primary-foreground">
                   <CardContent className="p-3">
                     <p className="text-sm whitespace-pre-wrap">
-                      {message.parts?.find((p: any) => p.type === "text")
-                        ?.text ||
-                        message.content ||
-                        ""}
+                      {message.parts?.find((p): p is { type: "text"; text: string } => p.type === "text")?.text || ""}
                     </p>
                   </CardContent>
                 </Card>
@@ -234,65 +230,45 @@ export default function Page() {
               <Card className="max-w-[80%]">
                 <CardContent className="p-3">
                   <div className="space-y-2">
-                    {message.parts?.map((part: any, i: number) => {
-                      switch (part.type) {
-                        case "text":
-                          return (
-                            <div
-                              key={`${message.id}-${i}`}
-                              className="text-sm whitespace-pre-wrap">
-                              {part.text}
-                            </div>
-                          );
-                        case "tool-getWorkOrderStatus":
-                        case "tool-getProductionStatus":
-                          const toolName =
-                            part.type === "tool-getWorkOrderStatus"
-                              ? "Work Order Status"
-                              : "Production Status";
-
-                          // Try to find the corresponding tool invocation result
-                          const toolInvocation = message.toolInvocations?.find(
-                            (inv: any) =>
-                              inv.toolName ===
-                              (part.type === "tool-getWorkOrderStatus"
-                                ? "getWorkOrderStatus"
-                                : "getProductionStatus")
-                          );
-
-                          // Check multiple possible properties for tool result
-                          // Tool parts can have: result, output, or we can get it from toolInvocations
-                          const result =
-                            part.result ??
-                            part.output ??
-                            toolInvocation?.result ??
-                            (part.state === "result" ? part : null);
-                          const hasResult =
-                            result !== null &&
-                            result !== undefined &&
-                            part.state !== "call" &&
-                            toolInvocation?.state !== "call";
-
-                          return (
-                            <div
-                              key={`${message.id}-${i}`}
-                              className="text-xs font-mono p-2 bg-gray-100 rounded border">
-                              <p className="font-semibold mb-1">{toolName}</p>
-                              {hasResult ? (
-                                <pre className="text-xs overflow-auto">
-                                  {JSON.stringify(result, null, 2)}
-                                </pre>
-                              ) : (
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-900"></div>
-                                  <span>Fetching data...</span>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        default:
-                          return null;
+                    {message.parts?.map((part, i: number) => {
+                      if (part.type === "text") {
+                        return (
+                          <div key={`${message.id}-${i}`} className="text-sm whitespace-pre-wrap">
+                            {part.text}
+                          </div>
+                        );
                       }
+                      
+                      // Handle tool parts - check if it's a tool-related part
+                      if (part.type.startsWith("tool-")) {
+                        // Extract tool name from type (e.g., "tool-getWorkOrderStatus" -> "getWorkOrderStatus")
+                        const toolType = part.type.replace("tool-", "");
+                        const toolName = toolType === "getWorkOrderStatus" ? "Work Order Status" : 
+                                        toolType === "getProductionStatus" ? "Production Status" : 
+                                        toolType;
+                        
+                        // Check if we have a result by looking at the part structure
+                        const hasResult = "result" in part && part.result !== undefined;
+                        const result = hasResult ? (part as { result: unknown }).result : null;
+                        
+                        return (
+                          <div key={`${message.id}-${i}`} className="text-xs font-mono p-2 bg-gray-100 rounded border">
+                            <p className="font-semibold mb-1">{toolName}</p>
+                            {!hasResult ? (
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-900"></div>
+                                <span>Fetching data...</span>
+                              </div>
+                            ) : (
+                              <pre className="text-xs overflow-auto">
+                                {JSON.stringify(result, null, 2)}
+                              </pre>
+                            )}
+                          </div>
+                        );
+                      }
+                      
+                      return null;
                     })}
                   </div>
                 </CardContent>
@@ -349,9 +325,12 @@ export default function Page() {
 **Key Implementation Details**:
 
 - **`useState` for input**: Manual input management for better control
-- **`sendMessage`**: Explicit message submission instead of `handleSubmit`
+- **`useChat()` without options**: The hook doesn't require an `api` option - it defaults to `/api/chat`
+- **`status` instead of `isLoading`**: Use `status === "streaming" || status === "submitted"` to determine loading state
+- **`sendMessage`**: Explicit message submission - no need to pass `api` option
 - **`message.parts`**: Handles streaming responses with multiple parts (text and tool results)
-- **Tool part handling**: Displays tool results with loading states
+- **Type-safe part handling**: Use type guards like `(p): p is { type: "text"; text: string }` for proper TypeScript support
+- **Tool part handling**: Extract tool names from part types and check for results using `"result" in part`
 - **Error handling**: Catches and logs errors during message submission
 
 ### Step 2: Understanding Tool Calling
@@ -488,7 +467,7 @@ Now let's implement tool calling in the API route:
 **File**: `app/api/chat/route.ts`
 
 ```typescript
-import { streamText, convertToModelMessages, stepCountIs } from "ai";
+import { convertToModelMessages, streamText, stepCountIs, UIMessage } from "ai";
 import { getWorkOrderStatus } from "@/app/manufacturing/tools/getWorkOrderStatus";
 import { getProductionStatus } from "@/app/manufacturing/tools/getProductionStatus";
 
@@ -497,7 +476,7 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { messages }: { messages: UIMessage[] } = await req.json();
 
     const result = streamText({
       model: "openai/gpt-4.1", // Fast model for real-time chat (immediate streaming, low latency)
@@ -535,6 +514,7 @@ Be concise and use manufacturing terminology appropriately.`,
 
 **Key Points**:
 
+- **`UIMessage` type**: Import and type the messages parameter as `UIMessage[]` to match AI SDK patterns
 - **`convertToModelMessages`**: Converts UI messages to the format expected by AI Gateway
 - **`toUIMessageStreamResponse()`**: Returns the correct response format for UI streaming with AI Gateway
 - **`stopWhen: stepCountIs(5)`**: Enables multi-step execution, allowing up to 5 tool calls in sequence
@@ -698,8 +678,21 @@ export const getProductionStatus = tool({
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
+      interface ProductionData {
+        date: string;
+        totalProduction: number;
+        unit: string;
+        efficiency: number;
+        qualityRate: number;
+        defectRate: number;
+        activeWorkOrders: number;
+        completedWorkOrders: number;
+        currentShift: string;
+        message?: string;
+      }
+
       // Build mock data with dynamically computed dates
-      const mockData: Record<string, any> = {
+      const mockData: Record<string, ProductionData> = {
         [today]: {
           date: today,
           totalProduction: 1250,
@@ -889,11 +882,8 @@ The `useChat` hook provides access to tool invocation information. You can displ
 
 ```typescript
 // In your page.tsx, you can access tool calls
-const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat(
-  {
-    api: "/api/chat",
-  }
-);
+const { messages, sendMessage, status } = useChat();
+const isLoading = status === "streaming" || status === "submitted";
 
 // Display tool calls in the UI
 {
