@@ -1,6 +1,6 @@
 import dotenvFlow from "dotenv-flow";
 dotenvFlow.config();
-import { generateText, generateObject } from "ai";
+import { generateObject } from "ai";
 import { z } from "zod";
 
 // Example: Smart form filling from natural language
@@ -43,7 +43,8 @@ async function smartFormFill(userInput: string) {
 }
 
 // Example: Smart email categorization
-async function smartEmailTriage(emailSubject: string, emailPreview: string) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function smartEmailTriage(_emailSubject: string, _emailPreview: string) {
   console.log("\n📧 Invisible AI: Email Smart Triage\n");
 
   // TODO: Create a Zod schema for email triage

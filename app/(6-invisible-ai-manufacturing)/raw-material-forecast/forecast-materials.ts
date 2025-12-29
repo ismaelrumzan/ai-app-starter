@@ -57,11 +57,26 @@ export interface MaterialForecast {
   reasoning: string;
 }
 
+export type HistoricalConsumption = {
+  averageMonthlyConsumption: Record<string, number>;
+  scrapGenerationRate: number;
+  seasonalFactors: Record<string, number>;
+};
+
+export type CurrentStock = Record<string, number>;
+
+export type SupplierData = Record<string, Array<{
+  supplierName: string;
+  leadTime: number;
+  reliability: number;
+  minOrder?: number;
+}>>;
+
 export async function forecastMaterialNeeds(
   currentOrders: ExtractedOrder[],
-  historicalConsumption: any,
-  currentStock: any,
-  supplierData: any
+  historicalConsumption: HistoricalConsumption,
+  currentStock: CurrentStock,
+  supplierData: SupplierData
 ): Promise<MaterialForecast> {
   const { object } = await generateObject({
     model: "openai/gpt-4.1",
@@ -77,4 +92,5 @@ Provide a time-phased forecast showing when materials are needed, not just quant
 
   return object;
 }
+
 

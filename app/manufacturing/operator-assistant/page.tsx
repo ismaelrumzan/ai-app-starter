@@ -8,9 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function Page() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, isLoading } = useChat({
-    api: "/api/chat",
-  });
+  const { messages, sendMessage, status } = useChat();
+  const isLoading = status === "streaming" || status === "submitted";
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto">
@@ -26,10 +25,10 @@ export default function Page() {
           <div className="text-center text-muted-foreground py-12">
             <p className="mb-2">I can fetch real-time data for you:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>"What's the status of work order WO-12345?"</li>
-              <li>"How many tons did we produce today?"</li>
-              <li>"What's the efficiency?"</li>
-              <li>"Where's the ABC Manufacturing order?"</li>
+              <li>&quot;What&apos;s the status of work order WO-12345?&quot;</li>
+              <li>&quot;How many tons did we produce today?&quot;</li>
+              <li>&quot;What&apos;s the efficiency?&quot;</li>
+              <li>&quot;Where&apos;s the ABC Manufacturing order?&quot;</li>
             </ul>
           </div>
         )}
@@ -40,7 +39,9 @@ export default function Page() {
               <div key={message.id} className="flex justify-end">
                 <Card className="max-w-[80%] bg-primary text-primary-foreground">
                   <CardContent className="p-3">
-                    <p className="text-sm whitespace-pre-wrap">{message.parts?.find((p: any) => p.type === "text")?.text || message.content || ""}</p>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {message.parts?.find((p): p is { type: "text"; text: string } => p.type === "text")?.text || ""}
+                    </p>
                   </CardContent>
                 </Card>
               </div>
@@ -53,46 +54,45 @@ export default function Page() {
               <Card className="max-w-[80%]">
                 <CardContent className="p-3">
                   <div className="space-y-2">
-                    {message.parts?.map((part: any, i: number) => {
-                      switch (part.type) {
-                        case "text":
-                          return (
-                            <div key={`${message.id}-${i}`} className="text-sm whitespace-pre-wrap">
-                              {part.text}
-                            </div>
-                          );
-                        case "tool-getWorkOrderStatus":
-                        case "tool-getProductionStatus":
-                          const toolName = part.type === "tool-getWorkOrderStatus" ? "Work Order Status" : "Production Status";
-                          
-                          // Try to find the corresponding tool invocation result
-                          const toolInvocation = message.toolInvocations?.find(
-                            (inv: any) => inv.toolName === (part.type === "tool-getWorkOrderStatus" ? "getWorkOrderStatus" : "getProductionStatus")
-                          );
-                          
-                          // Check multiple possible properties for tool result
-                          // Tool parts can have: result, output, or we can get it from toolInvocations
-                          const result = part.result ?? part.output ?? toolInvocation?.result ?? (part.state === "result" ? part : null);
-                          const hasResult = result !== null && result !== undefined && part.state !== "call" && toolInvocation?.state !== "call";
-                          
-                          return (
-                            <div key={`${message.id}-${i}`} className="text-xs font-mono p-2 bg-gray-100 rounded border">
-                              <p className="font-semibold mb-1">{toolName}</p>
-                              {hasResult ? (
-                                <pre className="text-xs overflow-auto">
-                                  {JSON.stringify(result, null, 2)}
-                                </pre>
-                              ) : (
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-900"></div>
-                                  <span>Fetching data...</span>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        default:
-                          return null;
+                    {message.parts?.map((part, i: number) => {
+                      if (part.type === "text") {
+                        return (
+                          <div key={`${message.id}-${i}`} className="text-sm whitespace-pre-wrap">
+                            {part.text}
+                          </div>
+                        );
                       }
+                      
+                      // Handle tool parts - check if it's a tool-related part
+                      if (part.type.startsWith("tool-")) {
+                        // Extract tool name from type (e.g., "tool-getWorkOrderStatus" -> "getWorkOrderStatus")
+                        const toolType = part.type.replace("tool-", "");
+                        const toolName = toolType === "getWorkOrderStatus" ? "Work Order Status" : 
+                                        toolType === "getProductionStatus" ? "Production Status" : 
+                                        toolType;
+                        
+                        // Check if we have a result by looking at the part structure
+                        const hasResult = "result" in part && part.result !== undefined;
+                        const result = hasResult ? (part as { result: unknown }).result : null;
+                        
+                        return (
+                          <div key={`${message.id}-${i}`} className="text-xs font-mono p-2 bg-gray-100 rounded border">
+                            <p className="font-semibold mb-1">{toolName}</p>
+                            {!hasResult ? (
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-900"></div>
+                                <span>Fetching data...</span>
+                              </div>
+                            ) : (
+                              <pre className="text-xs overflow-auto">
+                                {JSON.stringify(result, null, 2)}
+                              </pre>
+                            )}
+                          </div>
+                        );
+                      }
+                      
+                      return null;
                     })}
                   </div>
                 </CardContent>

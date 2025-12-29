@@ -38,8 +38,21 @@ export const getProductionStatus = tool({
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
+      interface ProductionData {
+        date: string;
+        totalProduction: number;
+        unit: string;
+        efficiency: number;
+        qualityRate: number;
+        defectRate: number;
+        activeWorkOrders: number;
+        completedWorkOrders: number;
+        currentShift: string;
+        message?: string;
+      }
+
       // Build mock data with dynamically computed dates
-      const mockData: Record<string, any> = {
+      const mockData: Record<string, ProductionData> = {
         [today]: {
           date: today,
           totalProduction: 1250,
@@ -95,6 +108,7 @@ export const getProductionStatus = tool({
           defectRate: 0,
           activeWorkOrders: 0,
           completedWorkOrders: 0,
+          currentShift: "Unknown",
           message: "No data available for this date",
         };
       }
@@ -102,21 +116,22 @@ export const getProductionStatus = tool({
       // Return specific metric if requested
       if (metric !== "all") {
         // Check if the metric exists in the data (handle 0 as a valid value)
+        const dataRecord = data as unknown as Record<string, unknown>;
         if (
-          metric in data &&
-          data[metric] !== undefined &&
-          data[metric] !== null
+          metric in dataRecord &&
+          dataRecord[metric] !== undefined &&
+          dataRecord[metric] !== null
         ) {
-          return { [metric]: data[metric] };
+          return { [metric]: dataRecord[metric] };
         }
         // Try with "Rate" suffix (e.g., "quality" -> "qualityRate")
         const rateKey = `${metric}Rate`;
         if (
-          rateKey in data &&
-          data[rateKey] !== undefined &&
-          data[rateKey] !== null
+          rateKey in dataRecord &&
+          dataRecord[rateKey] !== undefined &&
+          dataRecord[rateKey] !== null
         ) {
-          return { [metric]: data[rateKey] };
+          return { [metric]: dataRecord[rateKey] };
         }
         // Metric not found
         return { [metric]: "N/A" };

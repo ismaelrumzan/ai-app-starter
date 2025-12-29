@@ -345,10 +345,12 @@ const materialRequirementSchema = z.object({
   reasoning: z.string().describe("Explanation of material calculations"),
 });
 
+export type MaterialChart = Record<string, Record<string, number>>;
+
 export async function calculateMaterialRequirements(
-  orderDetails: any,
-  materialChart: any
-) {
+  orderDetails: ExtractedOrder,
+  materialChart: MaterialChart
+): Promise<MaterialRequirement> {
   const { object } = await generateObject({
     model: "openai/gpt-4.1",
     prompt: `Based on the following order details and material chart, calculate the raw materials needed:\n\nOrder: ${JSON.stringify(
@@ -420,12 +422,27 @@ const forecastSchema = z.object({
   reasoning: z.string().describe("Explanation of the forecast"),
 });
 
+export type HistoricalConsumption = {
+  averageMonthlyConsumption: Record<string, number>;
+  scrapGenerationRate: number;
+  seasonalFactors: Record<string, number>;
+};
+
+export type CurrentStock = Record<string, number>;
+
+export type SupplierData = Record<string, Array<{
+  supplierName: string;
+  leadTime: number;
+  reliability: number;
+  minOrder?: number;
+}>>;
+
 export async function forecastMaterialNeeds(
-  currentOrders: any[],
-  historicalConsumption: any,
-  currentStock: any,
-  supplierData: any
-) {
+  currentOrders: ExtractedOrder[],
+  historicalConsumption: HistoricalConsumption,
+  currentStock: CurrentStock,
+  supplierData: SupplierData
+): Promise<MaterialForecast> {
   const { object } = await generateObject({
     model: "openai/gpt-4.1",
     prompt: `Forecast raw material needs based on:
