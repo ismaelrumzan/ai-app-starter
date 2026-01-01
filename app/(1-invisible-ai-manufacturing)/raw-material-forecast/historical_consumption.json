@@ -1,0 +1,23 @@
+{
+  "averageMonthlyConsumption": {
+    "iron_ore": 2000,
+    "coal": 800,
+    "limestone": 400,
+    "chromium": 350,
+    "nickel": 150,
+    "molybdenum": 30,
+    "scrap_steel": 900
+  },
+  "scrapGenerationRate": 0.15,
+  "seasonalFactors": {
+    "Q1": 0.9,
+    "Q2": 1.0,
+    "Q3": 1.1,
+    "Q4": 1.0
+  }
+}
+
+
+
+
+

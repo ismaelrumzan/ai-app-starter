@@ -1,0 +1,153 @@
+[
+  {
+    "steelGrade": "SS304",
+    "description": "Austenitic stainless steel with excellent corrosion resistance",
+    "chemicalComposition": {
+      "chromium": "18-20%",
+      "nickel": "8-10.5%",
+      "carbon": "max 0.08%",
+      "manganese": "max 2%",
+      "silicon": "max 0.75%",
+      "phosphorus": "max 0.045%",
+      "sulfur": "max 0.03%",
+      "iron": "balance"
+    },
+    "mechanicalProperties": {
+      "yieldStrength": "205 MPa minimum",
+      "tensileStrength": "515 MPa minimum",
+      "elongation": "40% minimum",
+      "hardness": "HB 201 max"
+    },
+    "physicalProperties": {
+      "density": "8.0 g/cm³",
+      "meltingPoint": "1400-1450°C",
+      "thermalConductivity": "16.2 W/m·K",
+      "electricalResistivity": "0.72 μΩ·m"
+    },
+    "applications": ["Food processing equipment", "Kitchen appliances", "Chemical containers", "Architectural panels"],
+    "thicknessRange": "0.5-50mm",
+    "widthRange": "1000-2000mm",
+    "standardCodes": ["ASTM A240", "EN 10088-2", "JIS G4304"]
+  },
+  {
+    "steelGrade": "SS316",
+    "description": "Molybdenum-bearing austenitic stainless steel with superior corrosion resistance",
+    "chemicalComposition": {
+      "chromium": "16-18%",
+      "nickel": "10-14%",
+      "molybdenum": "2-3%",
+      "carbon": "max 0.08%",
+      "manganese": "max 2%",
+      "silicon": "max 0.75%",
+      "phosphorus": "max 0.045%",
+      "sulfur": "max 0.03%",
+      "iron": "balance"
+    },
+    "mechanicalProperties": {
+      "yieldStrength": "205 MPa minimum",
+      "tensileStrength": "515 MPa minimum",
+      "elongation": "40% minimum",
+      "hardness": "HB 217 max"
+    },
+    "physicalProperties": {
+      "density": "8.0 g/cm³",
+      "meltingPoint": "1375-1400°C",
+      "thermalConductivity": "16.2 W/m·K",
+      "electricalResistivity": "0.74 μΩ·m"
+    },
+    "applications": ["Marine environments", "Pharmaceutical equipment", "Food grade applications", "Chemical processing"],
+    "thicknessRange": "0.5-50mm",
+    "widthRange": "1000-2000mm",
+    "standardCodes": ["ASTM A240", "EN 10088-2", "JIS G4304"]
+  },
+  {
+    "steelGrade": "SS410",
+    "description": "Martensitic stainless steel with good strength and moderate corrosion resistance",
+    "chemicalComposition": {
+      "chromium": "11.5-13.5%",
+      "carbon": "0.08-0.15%",
+      "manganese": "max 1%",
+      "silicon": "max 1%",
+      "phosphorus": "max 0.04%",
+      "sulfur": "max 0.03%",
+      "iron": "balance"
+    },
+    "mechanicalProperties": {
+      "yieldStrength": "275 MPa minimum",
+      "tensileStrength": "450 MPa minimum",
+      "elongation": "20% minimum",
+      "hardness": "HB 159-200"
+    },
+    "physicalProperties": {
+      "density": "7.7 g/cm³",
+      "meltingPoint": "1480-1530°C",
+      "thermalConductivity": "24.9 W/m·K",
+      "electricalResistivity": "0.57 μΩ·m"
+    },
+    "applications": ["Valves and pumps", "Shafts and spindles", "Cutlery", "Machine parts"],
+    "thicknessRange": "1-100mm",
+    "widthRange": "1000-2500mm",
+    "standardCodes": ["ASTM A240", "EN 10088-2"]
+  },
+  {
+    "steelGrade": "SS430",
+    "description": "Ferritic stainless steel with good formability and moderate corrosion resistance",
+    "chemicalComposition": {
+      "chromium": "16-18%",
+      "carbon": "max 0.12%",
+      "manganese": "max 1%",
+      "silicon": "max 0.75%",
+      "phosphorus": "max 0.04%",
+      "sulfur": "max 0.03%",
+      "iron": "balance"
+    },
+    "mechanicalProperties": {
+      "yieldStrength": "205 MPa minimum",
+      "tensileStrength": "450 MPa minimum",
+      "elongation": "22% minimum",
+      "hardness": "HB 183 max"
+    },
+    "physicalProperties": {
+      "density": "7.7 g/cm³",
+      "meltingPoint": "1425-1510°C",
+      "thermalConductivity": "26.0 W/m·K",
+      "electricalResistivity": "0.60 μΩ·m"
+    },
+    "applications": ["Automotive trim", "Kitchen equipment", "Architectural applications", "Washing machine drums"],
+    "thicknessRange": "0.5-6mm",
+    "widthRange": "1000-1500mm",
+    "standardCodes": ["ASTM A240", "EN 10088-2"]
+  },
+  {
+    "steelGrade": "SS321",
+    "description": "Titanium-stabilized austenitic stainless steel with excellent high-temperature properties",
+    "chemicalComposition": {
+      "chromium": "17-19%",
+      "nickel": "9-12%",
+      "titanium": "5x carbon content minimum",
+      "carbon": "max 0.08%",
+      "manganese": "max 2%",
+      "silicon": "max 0.75%",
+      "phosphorus": "max 0.045%",
+      "sulfur": "max 0.03%",
+      "iron": "balance"
+    },
+    "mechanicalProperties": {
+      "yieldStrength": "205 MPa minimum",
+      "tensileStrength": "515 MPa minimum",
+      "elongation": "40% minimum",
+      "hardness": "HB 201 max"
+    },
+    "physicalProperties": {
+      "density": "8.0 g/cm³",
+      "meltingPoint": "1400-1425°C",
+      "thermalConductivity": "16.2 W/m·K",
+      "electricalResistivity": "0.72 μΩ·m"
+    },
+    "applications": ["High-temperature applications", "Aircraft exhaust systems", "Heat exchangers", "Welding equipment"],
+    "thicknessRange": "0.5-50mm",
+    "widthRange": "1000-2000mm",
+    "standardCodes": ["ASTM A240", "EN 10088-2"]
+  }
+]
+

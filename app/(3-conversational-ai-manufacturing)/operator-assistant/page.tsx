@@ -25,7 +25,9 @@ export default function Page() {
           <div className="text-center text-muted-foreground py-12">
             <p className="mb-2">I can fetch real-time data for you:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>&quot;What&apos;s the status of work order WO-12345?&quot;</li>
+              <li>
+                &quot;What&apos;s the status of work order WO-12345?&quot;
+              </li>
               <li>&quot;How many tons did we produce today?&quot;</li>
               <li>&quot;What&apos;s the efficiency?&quot;</li>
               <li>&quot;Where&apos;s the ABC Manufacturing order?&quot;</li>
@@ -40,7 +42,10 @@ export default function Page() {
                 <Card className="max-w-[80%] bg-primary text-primary-foreground">
                   <CardContent className="p-3">
                     <p className="text-sm whitespace-pre-wrap">
-                      {message.parts?.find((p): p is { type: "text"; text: string } => p.type === "text")?.text || ""}
+                      {message.parts?.find(
+                        (p): p is { type: "text"; text: string } =>
+                          p.type === "text"
+                      )?.text || ""}
                     </p>
                   </CardContent>
                 </Card>
@@ -57,26 +62,36 @@ export default function Page() {
                     {message.parts?.map((part, i: number) => {
                       if (part.type === "text") {
                         return (
-                          <div key={`${message.id}-${i}`} className="text-sm whitespace-pre-wrap">
+                          <div
+                            key={`${message.id}-${i}`}
+                            className="text-sm whitespace-pre-wrap">
                             {part.text}
                           </div>
                         );
                       }
-                      
+
                       // Handle tool parts - check if it's a tool-related part
                       if (part.type.startsWith("tool-")) {
                         // Extract tool name from type (e.g., "tool-getWorkOrderStatus" -> "getWorkOrderStatus")
                         const toolType = part.type.replace("tool-", "");
-                        const toolName = toolType === "getWorkOrderStatus" ? "Work Order Status" : 
-                                        toolType === "getProductionStatus" ? "Production Status" : 
-                                        toolType;
-                        
+                        const toolName =
+                          toolType === "getWorkOrderStatus"
+                            ? "Work Order Status"
+                            : toolType === "getProductionStatus"
+                            ? "Production Status"
+                            : toolType;
+
                         // Check if we have a result by looking at the part structure
-                        const hasResult = "result" in part && part.result !== undefined;
-                        const result = hasResult ? (part as { result: unknown }).result : null;
-                        
+                        const hasResult =
+                          "result" in part && part.result !== undefined;
+                        const result = hasResult
+                          ? (part as { result: unknown }).result
+                          : null;
+
                         return (
-                          <div key={`${message.id}-${i}`} className="text-xs font-mono p-2 bg-gray-100 rounded border">
+                          <div
+                            key={`${message.id}-${i}`}
+                            className="text-xs font-mono p-2 bg-gray-100 rounded border">
                             <p className="font-semibold mb-1">{toolName}</p>
                             {!hasResult ? (
                               <div className="flex items-center gap-2 text-muted-foreground">
@@ -91,7 +106,7 @@ export default function Page() {
                           </div>
                         );
                       }
-                      
+
                       return null;
                     })}
                   </div>
@@ -107,7 +122,9 @@ export default function Page() {
               <CardContent className="p-3">
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                  <span className="text-sm text-muted-foreground">
+                    Thinking...
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -127,8 +144,7 @@ export default function Page() {
             console.error("Failed to send message:", error);
           }
         }}
-        className="p-4 border-t flex gap-2"
-      >
+        className="p-4 border-t flex gap-2">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -143,4 +159,3 @@ export default function Page() {
     </div>
   );
 }
-

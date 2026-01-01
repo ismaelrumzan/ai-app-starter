@@ -76,7 +76,8 @@ export const getWorkOrderStatus = tool({
       };
 
       // Normalize work order ID for matching (remove special chars, convert to lowercase)
-      const normalizeId = (id: string) => id.toLowerCase().replace(/[#\s-]/g, "");
+      const normalizeId = (id: string) =>
+        id.toLowerCase().replace(/[#\s-]/g, "");
 
       // If searching by customer name
       if (customerName && !workOrderId) {
@@ -84,14 +85,16 @@ export const getWorkOrderStatus = tool({
           wo.customerName?.toLowerCase().includes(customerName.toLowerCase())
         );
         return (
-          found || { error: `No work order found for customer: ${customerName}` }
+          found || {
+            error: `No work order found for customer: ${customerName}`,
+          }
         );
       }
 
       // Search by work order ID (handle various formats and partial matches)
       if (workOrderId) {
         const normalizedQuery = normalizeId(workOrderId);
-        
+
         // First try exact match (case-insensitive, ignoring special chars)
         const exactMatch = Object.keys(mockData).find(
           (key) => normalizeId(key) === normalizedQuery
@@ -101,8 +104,10 @@ export const getWorkOrderStatus = tool({
         }
 
         // Then try partial match
-        const partialMatch = Object.keys(mockData).find((key) =>
-          normalizeId(key).includes(normalizedQuery) || normalizedQuery.includes(normalizeId(key))
+        const partialMatch = Object.keys(mockData).find(
+          (key) =>
+            normalizeId(key).includes(normalizedQuery) ||
+            normalizedQuery.includes(normalizeId(key))
         );
         if (partialMatch) {
           return mockData[partialMatch];
@@ -118,4 +123,3 @@ export const getWorkOrderStatus = tool({
     }
   },
 });
-

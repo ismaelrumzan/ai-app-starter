@@ -1,0 +1,83 @@
+[
+  {
+    "procedureId": "PROC-001",
+    "title": "Quality Control Inspection for Thickness Variation",
+    "category": "Quality Control",
+    "steps": [
+      "Measure thickness at minimum 5 points across the width using calibrated micrometer",
+      "Record measurements at center, quarter points, and edges",
+      "Calculate average thickness and compare to specification tolerance",
+      "If variation exceeds ±0.1mm, mark material for review",
+      "Document all measurements in quality log",
+      "Notify production supervisor if out of tolerance"
+    ],
+    "requiredTools": ["Calibrated micrometer", "Quality log sheet", "Marking tools"],
+    "tolerance": "±0.1mm from specified thickness",
+    "applicableGrades": ["SS304", "SS316", "SS430"]
+  },
+  {
+    "procedureId": "PROC-002",
+    "title": "Surface Finish Inspection",
+    "category": "Quality Control",
+    "steps": [
+      "Clean surface with appropriate solvent",
+      "Use surface roughness tester at multiple locations",
+      "Measure Ra (arithmetic average roughness) value",
+      "Compare against specification (typically Ra ≤ 0.4μm for food grade)",
+      "Document measurements",
+      "Reject if surface finish does not meet requirements"
+    ],
+    "requiredTools": ["Surface roughness tester", "Cleaning solvents", "Inspection log"],
+    "tolerance": "Ra ≤ 0.4μm for food grade applications",
+    "applicableGrades": ["SS304", "SS316"]
+  },
+  {
+    "procedureId": "PROC-003",
+    "title": "Chemical Composition Verification",
+    "category": "Material Testing",
+    "steps": [
+      "Obtain sample from production batch",
+      "Prepare sample for spectroscopy analysis",
+      "Perform XRF or OES analysis",
+      "Verify chromium, nickel, and other alloying elements",
+      "Compare results to grade specification",
+      "Document and archive test results"
+    ],
+    "requiredTools": ["XRF or OES spectrometer", "Sample preparation equipment"],
+    "tolerance": "Must meet grade specification within standard ranges",
+    "applicableGrades": ["All grades"]
+  },
+  {
+    "procedureId": "PROC-004",
+    "title": "Handling Scrap Material",
+    "category": "Material Management",
+    "steps": [
+      "Separate scrap by steel grade to prevent contamination",
+      "Measure and record scrap quantity",
+      "Assess scrap quality and reusability",
+      "Store reusable scrap in designated area by grade",
+      "Dispose of non-reusable scrap according to environmental regulations",
+      "Update inventory system with scrap quantities"
+    ],
+    "requiredTools": ["Weighing scale", "Storage containers", "Inventory system"],
+    "tolerance": "N/A",
+    "applicableGrades": ["All grades"]
+  },
+  {
+    "procedureId": "PROC-005",
+    "title": "Safety Guidelines for Hot Rolling Operations",
+    "category": "Safety",
+    "steps": [
+      "Ensure all personnel wear appropriate PPE (heat-resistant gloves, face shields)",
+      "Verify equipment safety interlocks are functional",
+      "Check material temperature before handling",
+      "Maintain safe distance from hot material (minimum 2 meters)",
+      "Use proper lifting equipment for hot material",
+      "Report any safety incidents immediately"
+    ],
+    "requiredTools": ["PPE equipment", "Temperature measurement device", "Lifting equipment"],
+    "tolerance": "N/A",
+    "applicableGrades": ["All grades"]
+  }
+]
+

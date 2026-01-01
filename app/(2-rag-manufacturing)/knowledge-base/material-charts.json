@@ -1,0 +1,113 @@
+[
+  {
+    "materialCode": "CODE_1",
+    "description": "Standard stainless steel grades for general applications",
+    "applicableGrades": ["SS304", "SS430"],
+    "thicknessRange": {
+      "min": 0.5,
+      "max": 6,
+      "unit": "mm"
+    },
+    "widthRange": {
+      "min": 1000,
+      "max": 1500,
+      "unit": "mm"
+    },
+    "lengthRange": {
+      "min": 2000,
+      "max": 6000,
+      "unit": "mm"
+    },
+    "typicalApplications": ["General construction", "Kitchen equipment", "Architectural panels"],
+    "qualityRequirements": "Standard quality, no special certifications required"
+  },
+  {
+    "materialCode": "CODE_2",
+    "description": "High-grade stainless steel for food and pharmaceutical applications",
+    "applicableGrades": ["SS304", "SS316"],
+    "thicknessRange": {
+      "min": 1,
+      "max": 12,
+      "unit": "mm"
+    },
+    "widthRange": {
+      "min": 1200,
+      "max": 2000,
+      "unit": "mm"
+    },
+    "lengthRange": {
+      "min": 3000,
+      "max": 8000,
+      "unit": "mm"
+    },
+    "typicalApplications": ["Food processing equipment", "Pharmaceutical containers", "Medical devices"],
+    "qualityRequirements": "Food grade certification required, surface finish Ra ≤ 0.4μm"
+  },
+  {
+    "materialCode": "CODE_3",
+    "description": "Specialty stainless steel for high-temperature and corrosive environments",
+    "applicableGrades": ["SS316", "SS321", "SS410"],
+    "thicknessRange": {
+      "min": 2,
+      "max": 50,
+      "unit": "mm"
+    },
+    "widthRange": {
+      "min": 1500,
+      "max": 2500,
+      "unit": "mm"
+    },
+    "lengthRange": {
+      "min": 4000,
+      "max": 12000,
+      "unit": "mm"
+    },
+    "typicalApplications": ["Chemical processing", "Marine environments", "High-temperature equipment"],
+    "qualityRequirements": "Enhanced corrosion resistance, may require special heat treatment"
+  },
+  {
+    "materialCode": "CODE_4",
+    "description": "Thin gauge stainless steel for precision applications",
+    "applicableGrades": ["SS304", "SS316"],
+    "thicknessRange": {
+      "min": 0.3,
+      "max": 2,
+      "unit": "mm"
+    },
+    "widthRange": {
+      "min": 500,
+      "max": 1200,
+      "unit": "mm"
+    },
+    "lengthRange": {
+      "min": 1000,
+      "max": 4000,
+      "unit": "mm"
+    },
+    "typicalApplications": ["Electronics enclosures", "Precision instruments", "Thin-walled containers"],
+    "qualityRequirements": "Tight dimensional tolerances, surface finish Ra ≤ 0.2μm"
+  },
+  {
+    "materialCode": "CODE_5",
+    "description": "Heavy gauge stainless steel for structural applications",
+    "applicableGrades": ["SS304", "SS316", "SS410"],
+    "thicknessRange": {
+      "min": 6,
+      "max": 100,
+      "unit": "mm"
+    },
+    "widthRange": {
+      "min": 1500,
+      "max": 3000,
+      "unit": "mm"
+    },
+    "lengthRange": {
+      "min": 6000,
+      "max": 15000,
+      "unit": "mm"
+    },
+    "typicalApplications": ["Structural components", "Heavy machinery", "Industrial equipment"],
+    "qualityRequirements": "Standard structural quality, may require impact testing"
+  }
+]
+
