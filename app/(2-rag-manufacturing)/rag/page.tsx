@@ -1,19 +1,225 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import type { UIMessage } from "ai";
+
+// Force dynamic rendering to prevent build-time prerendering issues
+export const dynamic = 'force-dynamic';
 
 export default function RAGPage() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, status } = useChat({
-    api: "/api/rag",
-  });
-  const isLoading = status === "streaming" || status === "submitted";
+  const [messages, setMessages] = useState<UIMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sendMessage = async ({ text }: { text: string }) => {
+    if (!text.trim() || isLoading) return;
+
+    const userMessage: UIMessage = {
+      id: `msg-${Date.now()}`,
+      role: "user",
+      parts: [{ type: "text", text }],
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/rag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
+      });
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const assistantMessage: UIMessage = {
+        id: `msg-${Date.now() + 1}`,
+        role: "assistant",
+        parts: [],
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.trim() === "") continue;
+          
+          // Handle Server-Sent Events format (data: {...})
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              // Handle text streaming
+              if (data.type === "text-delta" && data.delta) {
+                const textPartIndex = assistantMessage.parts.findIndex(
+                  (p) => p.type === "text"
+                );
+
+                if (textPartIndex >= 0) {
+                  // Update existing text part
+                  const existingPart = assistantMessage.parts[textPartIndex] as { type: "text"; text: string };
+                  assistantMessage.parts[textPartIndex] = {
+                    ...existingPart,
+                    text: existingPart.text + data.delta,
+                  };
+                } else {
+                  // Create new text part
+                  assistantMessage.parts.push({
+                    type: "text",
+                    text: data.delta,
+                  });
+                }
+                
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    ...assistantMessage,
+                    parts: [...assistantMessage.parts],
+                  };
+                  return updated;
+                });
+              } 
+              // Handle tool input start (tool call beginning)
+              else if (data.type === "tool-input-start") {
+                // Create tool part when tool call starts
+                const existingToolPart = assistantMessage.parts.find(
+                  (p) =>
+                    p.type.startsWith("tool-") &&
+                    "toolCallId" in p &&
+                    p.toolCallId === data.toolCallId
+                );
+                
+                if (!existingToolPart) {
+                  assistantMessage.parts.push({
+                    type: `tool-${data.toolName}`,
+                    toolCallId: data.toolCallId,
+                    state: "input-streaming",
+                    input: "",
+                  } as unknown as UIMessage["parts"][number]);
+                  
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = {
+                      ...assistantMessage,
+                      parts: [...assistantMessage.parts],
+                    };
+                    return updated;
+                  });
+                }
+              }
+              // Handle tool input delta (streaming tool arguments)
+              else if (data.type === "tool-input-delta") {
+                const toolPart = assistantMessage.parts.find(
+                  (p) =>
+                    p.type.startsWith("tool-") &&
+                    "toolCallId" in p &&
+                    p.toolCallId === data.toolCallId
+                ) as { input: string } | undefined;
+                
+                if (toolPart && typeof toolPart.input === "string") {
+                  toolPart.input += data.inputTextDelta || "";
+                  
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = {
+                      ...assistantMessage,
+                      parts: [...assistantMessage.parts],
+                    };
+                    return updated;
+                  });
+                }
+              }
+              // Handle tool calls (when tool is actually called)
+              else if (data.type === "tool-call") {
+                const toolPartIndex = assistantMessage.parts.findIndex(
+                  (p) =>
+                    p.type.startsWith("tool-") &&
+                    "toolCallId" in p &&
+                    p.toolCallId === data.toolCallId
+                );
+                
+                if (toolPartIndex >= 0) {
+                  // Update existing tool part
+                  assistantMessage.parts[toolPartIndex] = {
+                    ...assistantMessage.parts[toolPartIndex],
+                    state: "call",
+                    input: data.args,
+                  } as unknown as UIMessage["parts"][number];
+                } else {
+                  // Create new tool part
+                  assistantMessage.parts.push({
+                    type: `tool-${data.toolName}`,
+                    toolCallId: data.toolCallId,
+                    state: "call",
+                    input: data.args,
+                  } as unknown as UIMessage["parts"][number]);
+                }
+                
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    ...assistantMessage,
+                    parts: [...assistantMessage.parts],
+                  };
+                  return updated;
+                });
+              } 
+              // Handle tool results
+              else if (data.type === "tool-result") {
+                const toolPartIndex = assistantMessage.parts.findIndex(
+                  (p) =>
+                    p.type.startsWith("tool-") &&
+                    "toolCallId" in p &&
+                    p.toolCallId === data.toolCallId
+                );
+                if (toolPartIndex >= 0) {
+                  // Update the tool part with result and state
+                  assistantMessage.parts[toolPartIndex] = {
+                    ...assistantMessage.parts[toolPartIndex],
+                    state: "result",
+                    output: data.result,
+                  } as unknown as UIMessage["parts"][number];
+                  
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = {
+                      ...assistantMessage,
+                      parts: [...assistantMessage.parts],
+                    };
+                    return updated;
+                  });
+                }
+              }
+            } catch {
+              // Skip invalid JSON lines
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto">
@@ -29,9 +235,9 @@ export default function RAGPage() {
           <div className="text-center text-muted-foreground py-12">
             <p className="mb-2">I can help you with:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>"What are the properties of SS304 steel?"</li>
-              <li>"How do I handle quality issues?"</li>
-              <li>"What material code should I use?"</li>
+              <li>&quot;What are the properties of SS304 steel?&quot;</li>
+              <li>&quot;How do I handle quality issues?&quot;</li>
+              <li>&quot;What material code should I use?&quot;</li>
             </ul>
           </div>
         )}
@@ -63,44 +269,50 @@ export default function RAGPage() {
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            h1: ({ children }: any) => (
+                            h1: ({ children }: { children?: React.ReactNode }) => (
                               <h1 className="text-lg font-bold mt-4 mb-2">
                                 {children}
                               </h1>
                             ),
-                            h2: ({ children }: any) => (
+                            h2: ({ children }: { children?: React.ReactNode }) => (
                               <h2 className="text-base font-bold mt-3 mb-2">
                                 {children}
                               </h2>
                             ),
-                            h3: ({ children }: any) => (
+                            h3: ({ children }: { children?: React.ReactNode }) => (
                               <h3 className="text-sm font-semibold mt-2 mb-1">
                                 {children}
                               </h3>
                             ),
-                            p: ({ children }: any) => (
+                            p: ({ children }: { children?: React.ReactNode }) => (
                               <p className="mb-2 leading-relaxed">{children}</p>
                             ),
-                            ul: ({ children }: any) => (
+                            ul: ({ children }: { children?: React.ReactNode }) => (
                               <ul className="list-disc list-inside mb-2 space-y-1">
                                 {children}
                               </ul>
                             ),
-                            ol: ({ children }: any) => (
+                            ol: ({ children }: { children?: React.ReactNode }) => (
                               <ol className="list-decimal list-inside mb-2 space-y-1">
                                 {children}
                               </ol>
                             ),
-                            li: ({ children }: any) => (
+                            li: ({ children }: { children?: React.ReactNode }) => (
                               <li className="ml-2">{children}</li>
                             ),
-                            strong: ({ children }: any) => (
+                            strong: ({ children }: { children?: React.ReactNode }) => (
                               <strong className="font-semibold">{children}</strong>
                             ),
-                            em: ({ children }: any) => (
+                            em: ({ children }: { children?: React.ReactNode }) => (
                               <em className="italic">{children}</em>
                             ),
-                            code: ({ children, className }: any) => {
+                            code: ({
+                              children,
+                              className,
+                            }: {
+                              children?: React.ReactNode;
+                              className?: string;
+                            }) => {
                               const isInline = !className;
                               return isInline ? (
                                 <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs font-mono">
@@ -110,7 +322,7 @@ export default function RAGPage() {
                                 <code className={className}>{children}</code>
                               );
                             },
-                            pre: ({ children }: any) => (
+                            pre: ({ children }: { children?: React.ReactNode }) => (
                               <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-x-auto mb-2">
                                 {children}
                               </pre>
@@ -125,7 +337,11 @@ export default function RAGPage() {
                   if (part.type.startsWith("tool-")) {
                     const toolName = part.type.replace("tool-", "");
                     const hasResult =
-                      "result" in part && part.result !== undefined;
+                      ("output" in part && part.output !== undefined) ||
+                      ("result" in part && part.result !== undefined);
+                    const result: unknown = "output" in part ? part.output : 
+                                  "result" in part ? part.result : 
+                                  undefined;
                     return (
                       <div
                         key={`${message.id}-${i}`}
@@ -134,11 +350,11 @@ export default function RAGPage() {
                         <p className="font-semibold">
                           {hasResult ? "Called" : "Calling"} tool: {toolName}
                         </p>
-                        {hasResult && (
+                        {hasResult && result !== undefined ? (
                           <pre className="text-xs mt-1 overflow-auto">
-                            {JSON.stringify(part.result, null, 2)}
+                            {JSON.stringify(result, null, 2)}
                           </pre>
-                        )}
+                        ) : null}
                       </div>
                     );
                   }

@@ -12,7 +12,9 @@ By the end of this part, you will:
 
 ## Creating the Chat Interface
 
-**File**: `app/(3-conversational-ai-manufacturing)/operator-assistant/page.tsx`
+**File**: `app/manufacturing/operator-assistant/page.tsx`
+
+**Note**: The route is accessible at `/manufacturing/operator-assistant` in the browser.
 
 ```typescript
 "use client";

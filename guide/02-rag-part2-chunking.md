@@ -146,6 +146,8 @@ Keep related information together:
 - Keep specifications with their values
 - Maintain relationships between data points
 
+**For detailed material specifications**: Consider keeping each material spec as a single comprehensive chunk rather than splitting by sentences. This ensures all properties (chemical, mechanical, physical) stay together for better semantic search.
+
 ### 2. Add Metadata
 
 Store metadata with each chunk:

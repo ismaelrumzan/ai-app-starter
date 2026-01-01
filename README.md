@@ -82,7 +82,10 @@ Open [http://localhost:3000](http://localhost:3000) to see the tutorial navigati
 
 Learn how to automate order extraction, material calculation, and forecasting.
 
+**Note**: This lesson uses command-line scripts only (no web interface).
+
 **Command-line scripts:**
+
 ```bash
 # Extract order details from sample data
 pnpm manufacturing:extract-order
@@ -96,12 +99,14 @@ pnpm manufacturing:forecast
 Build a knowledge base system with semantic search.
 
 **Command-line script:**
+
 ```bash
 # Demo chunking and cosine similarity
 pnpm rag:demo
 ```
 
 **Web interface:**
+
 - Navigate to `/rag` to interact with the knowledge base
 
 ### Lesson 3: Conversational AI - Operator Assistant
@@ -109,17 +114,28 @@ pnpm rag:demo
 Create an interactive chatbot with tool calling.
 
 **Web interface:**
+
 - Navigate to `/manufacturing/operator-assistant` to use the chatbot
 
 ## Project Structure
 
 ```
 ├── app/
-│   ├── (1-invisible-ai-manufacturing)/    # Lesson 1: Invisible AI
+│   ├── (1-invisible-ai-manufacturing)/    # Lesson 1: Invisible AI (CLI scripts)
+│   │   └── raw-material-forecast/         # Order extraction, calculation, forecasting
 │   ├── (2-rag-manufacturing)/             # Lesson 2: RAG
+│   │   ├── demo-chunking-similarity.ts    # Demo script
+│   │   ├── knowledge-base/                # Sample data and embeddings
+│   │   └── rag/                          # RAG chat interface
 │   ├── (3-conversational-ai-manufacturing)/ # Lesson 3: Conversational AI
+│   │   └── operator-assistant/           # Chat interface (duplicate route)
 │   ├── api/                               # API routes
-│   └── page.tsx                           # Homepage
+│   │   ├── chat/                         # Operator assistant API
+│   │   └── rag/                          # RAG agent API
+│   ├── manufacturing/                     # Shared manufacturing resources
+│   │   ├── operator-assistant/            # Lesson 3: Chat interface
+│   │   └── tools/                        # Tool functions for chat
+│   └── page.tsx                           # Homepage navigation
 ├── guide/                                 # Step-by-step learning guides
 ├── components/ui/                         # Reusable UI components
 └── lib/                                   # Utility functions

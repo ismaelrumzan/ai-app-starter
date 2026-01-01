@@ -37,8 +37,16 @@ export async function POST(req: Request) {
   const result = streamText({
     model: "openai/gpt-4o",
     system: `You are a manufacturing knowledge assistant. 
-    Only respond using information from your knowledge base.
-    If no relevant information is found, respond "Sorry, I don't know."`,
+    
+IMPORTANT: You MUST use the getInformation tool to retrieve information from the knowledge base before answering ANY question. Do NOT answer from your training data - always call getInformation first.
+
+Steps:
+1. When a user asks a question, ALWAYS call getInformation with their question
+2. Use ALL the information returned from getInformation to provide a comprehensive answer
+3. Include all relevant details from the retrieved results (properties, specifications, procedures, etc.)
+4. If getInformation returns no results or empty results, respond "Sorry, I don't have that information in my knowledge base."
+5. Never make up information or use your training data - only use what getInformation returns
+6. Format your response clearly with proper structure (lists, sections, etc.) when presenting multiple pieces of information`,
     messages: await convertToModelMessages(messages),
     stopWhen: stepCountIs(5),
     tools: {
@@ -60,9 +68,9 @@ export async function POST(req: Request) {
         },
       }),
       getInformation: tool({
-        description: "Get information from the knowledge base to answer questions",
+        description: "REQUIRED: Use this tool to search the knowledge base for information to answer user questions. You MUST call this tool for every question before answering.",
         inputSchema: z.object({
-          question: z.string().describe("The user's question"),
+          question: z.string().describe("The user's question to search for in the knowledge base"),
         }),
         execute: async ({ question }) => {
           const relevant = await findRelevantContent(
@@ -71,7 +79,17 @@ export async function POST(req: Request) {
             0.5,
             4
           );
-          return relevant;
+          if (relevant.length === 0) {
+            return { message: "No relevant information found in the knowledge base." };
+          }
+          return {
+            found: relevant.length,
+            results: relevant.map((r) => ({
+              content: r.content,
+              similarity: r.similarity,
+              source: r.source,
+            })),
+          };
         },
       }),
     },
@@ -85,21 +103,131 @@ export async function POST(req: Request) {
 
 **File**: `app/(2-rag-manufacturing)/rag/page.tsx`
 
+The RAG chat UI uses manual streaming to handle the `/api/rag` endpoint. This is because `useChat` in `@ai-sdk/react` v3.0.0 doesn't support custom endpoints directly.
+
+### Understanding Server-Sent Events (SSE)
+
+**Server-Sent Events (SSE)** is a standard for streaming data from a server to a client. The server sends text in a specific format:
+- Each line starts with `data: ` followed by JSON
+- Lines are separated by newlines
+- The client reads the stream incrementally
+
+**Why Manual Parsing?**
+- `useChat` hook expects `/api/chat` endpoint by default
+- We need to use `/api/rag` for our RAG system
+- Manual parsing gives us control over the stream
+
+**Key Concepts:**
+- **`ReadableStream`**: The response body is a stream of bytes
+- **`TextDecoder`**: Converts bytes to text
+- **Buffer**: Accumulates partial lines until we have complete JSON
+
+Let's implement manual SSE parsing:
+
 ```typescript
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import type { UIMessage } from "ai";
 
 export default function RAGPage() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, status } = useChat({
-    api: "/api/rag",
-  });
-  const isLoading = status === "streaming" || status === "submitted";
+  const [messages, setMessages] = useState<UIMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sendMessage = async ({ text }: { text: string }) => {
+    if (!text.trim() || isLoading) return;
+
+    const userMessage: UIMessage = {
+      id: `msg-${Date.now()}`,
+      role: "user",
+      parts: [{ type: "text", text }],
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/rag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
+      });
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const assistantMessage: UIMessage = {
+        id: `msg-${Date.now() + 1}`,
+        role: "assistant",
+        parts: [],
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      // Parse Server-Sent Events stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.trim() === "" || !line.startsWith("data: ")) continue;
+
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            // Handle text streaming
+            if (data.type === "text-delta" && data.delta) {
+              const existingTextPart = assistantMessage.parts.find(
+                (p) => p.type === "text"
+              ) as { type: "text"; text: string } | undefined;
+
+              if (existingTextPart) {
+                existingTextPart.text += data.delta;
+              } else {
+                assistantMessage.parts.push({
+                  type: "text",
+                  text: data.delta,
+                });
+              }
+
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  ...assistantMessage,
+                  parts: [...assistantMessage.parts],
+                };
+                return updated;
+              });
+            }
+
+            // Handle tool calls (simplified - see actual code for full implementation)
+            // ... tool call handling code ...
+          } catch {
+            // Skip invalid JSON lines
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto">
@@ -111,23 +239,68 @@ export default function RAGPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 && (
+          <div className="text-center text-muted-foreground py-12">
+            <p className="mb-2">I can help you with:</p>
+            <ul className="list-disc list-inside space-y-1 text-sm">
+              <li>"What are the properties of SS304 steel?"</li>
+              <li>"How do I handle quality issues?"</li>
+              <li>"What material code should I use?"</li>
+            </ul>
+          </div>
+        )}
+
         {messages.map((message) => (
-          <div key={message.id} className={message.role === "user" ? "flex justify-end" : "flex justify-start"}>
-            <Card className={message.role === "user" ? "bg-primary text-primary-foreground max-w-[80%]" : "max-w-[80%]"}>
+          <div
+            key={message.id}
+            className={
+              message.role === "user"
+                ? "flex justify-end"
+                : "flex justify-start"
+            }
+          >
+            <Card
+              className={
+                message.role === "user"
+                  ? "bg-primary text-primary-foreground max-w-[80%]"
+                  : "max-w-[80%]"
+              }
+            >
               <CardContent className="p-3">
                 {message.parts?.map((part, i) => {
                   if (part.type === "text") {
-                    return <p key={i} className="text-sm whitespace-pre-wrap">{part.text}</p>;
+                    return (
+                      <div
+                        key={`${message.id}-${i}`}
+                        className="text-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                      >
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {part.text}
+                        </ReactMarkdown>
+                      </div>
+                    );
                   }
                   if (part.type.startsWith("tool-")) {
+                    const toolName = part.type.replace("tool-", "");
+                    const hasResult =
+                      ("output" in part && part.output !== undefined) ||
+                      ("result" in part && part.result !== undefined);
+                    const result: unknown = "output" in part ? part.output : 
+                                  "result" in part ? part.result : 
+                                  undefined;
                     return (
-                      <div key={i} className="text-xs mt-2 p-2 bg-gray-100 rounded">
-                        <p className="font-semibold">Tool: {part.type.replace("tool-", "")}</p>
-                        {"result" in part && part.result && (
+                      <div
+                        key={`${message.id}-${i}`}
+                        className="text-xs mt-2 p-2 bg-gray-100 rounded"
+                      >
+                        <p className="font-semibold">
+                          {hasResult ? "Called" : "Calling"} tool: {toolName}
+                        </p>
+                        {hasResult && result !== undefined ? (
                           <pre className="text-xs mt-1 overflow-auto">
-                            {JSON.stringify(part.result, null, 2)}
+                            {JSON.stringify(result, null, 2)}
                           </pre>
-                        )}
+                        ) : null}
                       </div>
                     );
                   }
@@ -137,6 +310,21 @@ export default function RAGPage() {
             </Card>
           </div>
         ))}
+
+        {isLoading && (
+          <div className="flex justify-start">
+            <Card>
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                  <span className="text-sm text-muted-foreground">
+                    Thinking...
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       <form
@@ -163,6 +351,21 @@ export default function RAGPage() {
   );
 }
 ```
+
+**Note**: The full implementation includes complete SSE parsing for tool calls (`tool-input-start`, `tool-input-delta`, `tool-call`, `tool-result` events). 
+
+### Understanding the Stream Parsing
+
+The code above shows the core pattern:
+1. **Read stream**: `reader.read()` gets chunks of bytes
+2. **Decode to text**: `TextDecoder` converts bytes to strings
+3. **Buffer lines**: Accumulate until we have complete lines
+4. **Parse JSON**: Extract `data: {...}` and parse the JSON
+5. **Update UI**: React state updates trigger re-renders
+
+For production, you'd want to handle all event types. The actual code file (`app/(2-rag-manufacturing)/rag/page.tsx`) shows the complete implementation with tool call handling.
+
+**Key Takeaway**: Manual streaming gives you full control, but `useChat` is simpler when you can use the default endpoint. For custom endpoints like `/api/rag`, manual parsing is necessary.
 
 ## Testing the RAG Agent
 

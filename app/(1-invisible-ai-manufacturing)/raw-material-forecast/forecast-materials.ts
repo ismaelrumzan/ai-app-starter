@@ -83,11 +83,6 @@ export type SupplierData = Record<
   }>
 >;
 
-// Have a vector DB of all the scrap material classified by supplier and material type
-// prompt: "Optimize which supplier should be used based on scrap generation and cost - Order X has returned material of thickness Y is needed - find the best supplier and material type using the ${vectorDB}"
-
-("Uttam Intelligence");
-
 export async function forecastMaterialNeeds(
   currentOrders: ExtractedOrder[],
   historicalConsumption: HistoricalConsumption,

@@ -6,7 +6,7 @@ export interface ChunkWithEmbedding {
   content: string;
   embedding: number[];
   source: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface EmbeddingStore {
@@ -17,7 +17,7 @@ export interface SimilarChunk {
   content: string;
   similarity: number;
   source: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export function loadEmbeddings(filePath: string): EmbeddingStore {

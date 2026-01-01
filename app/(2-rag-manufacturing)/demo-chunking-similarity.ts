@@ -1,8 +1,8 @@
 import dotenvFlow from "dotenv-flow";
 dotenvFlow.config();
 import fs from "fs";
-import { generateEmbeddings, generateEmbedding, calculateCosineSimilarity } from "@/lib/ai/embedding";
-import { addChunks, findRelevantContent } from "@/lib/vector-store";
+import { generateEmbeddings } from "@/lib/ai/embedding";
+import { findRelevantContent } from "@/lib/vector-store";
 
 async function main() {
   console.log("🔍 RAG Demo: Chunking and Cosine Similarity\n");
@@ -30,6 +30,50 @@ async function main() {
   // Convert to readable text format for chunking
   console.log("\n✂️  Step 2: Generating chunks and embeddings...\n");
 
+  // Define types for JSON data
+  interface MaterialSpec {
+    steelGrade: string;
+    description: string;
+    chemicalComposition: {
+      chromium: string;
+      nickel: string;
+      [key: string]: string;
+    };
+    mechanicalProperties: {
+      yieldStrength: string;
+      tensileStrength: string;
+      [key: string]: string;
+    };
+    physicalProperties?: {
+      density?: string;
+      meltingPoint?: string;
+      thermalConductivity?: string;
+      electricalResistivity?: string;
+      [key: string]: string | undefined;
+    };
+    applications: string[];
+    thicknessRange?: string;
+    widthRange?: string;
+    standardCodes?: string[];
+  }
+
+  interface MaterialChart {
+    materialCode: string;
+    description: string;
+    applicableGrades: string[];
+    thicknessRange: {
+      min: number;
+      max: number;
+      unit: string;
+    };
+  }
+
+  interface Procedure {
+    procedureId: string;
+    title: string;
+    steps: string[];
+  }
+
   // Add IDs and metadata (track which source each chunk came from)
   let chunkIndex = 0;
   const chunksWithIds: Array<{
@@ -37,26 +81,57 @@ async function main() {
     content: string;
     embedding: number[];
     source: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }> = [];
   
-  // Process material specs chunks
-  const specsText = materialSpecs.map((spec: any) => 
-    `${spec.steelGrade} steel: ${spec.description}. Chemical composition includes chromium ${spec.chemicalComposition.chromium}, nickel ${spec.chemicalComposition.nickel}. Mechanical properties: yield strength ${spec.mechanicalProperties.yieldStrength}, tensile strength ${spec.mechanicalProperties.tensileStrength}. Applications include ${spec.applications.join(", ")}.`
-  ).join(" ");
-  const specsChunks = await generateEmbeddings(specsText);
-  specsChunks.forEach((chunk) => {
+  // Process material specs chunks - create detailed chunks for each spec
+  for (const spec of materialSpecs as MaterialSpec[]) {
+    // Create comprehensive text for each material spec with ALL details
+    const compositionText = Object.entries(spec.chemicalComposition)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(", ");
+    
+    const mechanicalText = Object.entries(spec.mechanicalProperties)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(", ");
+    
+    const physicalText = spec.physicalProperties
+      ? Object.entries(spec.physicalProperties)
+          .filter(([, value]) => value !== undefined)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ")
+      : "";
+    
+    const fullSpecText = `${spec.steelGrade} steel: ${spec.description}. ` +
+      `Chemical composition: ${compositionText}. ` +
+      `Mechanical properties: ${mechanicalText}. ` +
+      (physicalText ? `Physical properties: ${physicalText}. ` : "") +
+      `Applications: ${spec.applications.join(", ")}. ` +
+      (spec.thicknessRange ? `Thickness range: ${spec.thicknessRange}. ` : "") +
+      (spec.widthRange ? `Width range: ${spec.widthRange}. ` : "") +
+      (spec.standardCodes && spec.standardCodes.length > 0
+        ? `Standard codes: ${spec.standardCodes.join(", ")}.` 
+        : "");
+    
+    // For material specs, create a single comprehensive chunk per material
+    // instead of splitting by periods (which breaks up the information)
+    const { embed } = await import("ai");
+    const { embedding } = await embed({
+      model: "openai/text-embedding-ada-002",
+      value: fullSpecText,
+    });
+    
     chunksWithIds.push({
       id: `chunk_${chunkIndex++}`,
-      content: chunk.content,
-      embedding: chunk.embedding,
+      content: fullSpecText,
+      embedding: embedding,
       source: "material-specs.json",
-      metadata: { type: "material-spec" },
+      metadata: { type: "material-spec", steelGrade: spec.steelGrade },
     });
-  });
+  }
   
   // Process material charts chunks
-  const chartsText = materialCharts.map((chart: any) =>
+  const chartsText = (materialCharts as MaterialChart[]).map((chart) =>
     `Material code ${chart.materialCode}: ${chart.description}. Applicable grades: ${chart.applicableGrades.join(", ")}. Thickness range: ${chart.thicknessRange.min}-${chart.thicknessRange.max}${chart.thicknessRange.unit}.`
   ).join(" ");
   const chartsChunks = await generateEmbeddings(chartsText);
@@ -71,7 +146,7 @@ async function main() {
   });
   
   // Process procedures chunks
-  const proceduresText = procedures.map((proc: any) =>
+  const proceduresText = (procedures as Procedure[]).map((proc) =>
     `Procedure ${proc.procedureId}: ${proc.title}. Steps: ${proc.steps.join(". ")}.`
   ).join(" ");
   const proceduresChunks = await generateEmbeddings(proceduresText);
@@ -85,9 +160,14 @@ async function main() {
     });
   });
 
-  // Save to JSON
+  // Save to JSON - clear existing and create fresh
   const embeddingsPath = `${knowledgeBasePath}/embeddings.json`;
-  addChunks(embeddingsPath, chunksWithIds);
+  // Clear existing embeddings and create fresh file with all chunks
+  fs.writeFileSync(
+    embeddingsPath,
+    JSON.stringify({ chunks: chunksWithIds }, null, 2),
+    "utf-8"
+  );
   console.log(`✓ Generated ${chunksWithIds.length} total chunks with embeddings`);
   console.log(`✓ Saved embeddings to ${embeddingsPath}`);
 

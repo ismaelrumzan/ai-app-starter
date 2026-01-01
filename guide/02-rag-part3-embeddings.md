@@ -148,7 +148,7 @@ import { generateEmbeddings } from "./lib/ai/embedding";
 import { addChunks } from "./lib/vector-store";
 
 // Generate embeddings for chunks
-const chunks = generateChunks(text);
+// Note: generateEmbeddings internally calls generateChunks
 const chunksWithEmbeddings = await generateEmbeddings(text);
 
 // Add IDs and metadata

@@ -102,6 +102,16 @@ export async function extractOrderDetails(
 
 ## Understanding the Code
 
+### What is Zod?
+
+**Zod** is a TypeScript-first schema validation library. It lets you define the structure of data and automatically validates that data matches that structure. In this case, we use it to define what the extracted order should look like.
+
+**Why Zod?**
+- **Type safety**: TypeScript knows the exact structure
+- **Validation**: Catches invalid data early
+- **Documentation**: The schema documents what we expect
+- **AI SDK integration**: `generateObject` uses Zod schemas to ensure the AI returns the correct format
+
 ### Zod Schema
 
 The `orderSchema` defines the structure we want to extract:

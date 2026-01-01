@@ -125,8 +125,6 @@ export default function Page() {
             setInput("");
           } catch (error) {
             console.error("Failed to send message:", error);
-            // TODO: Show user-friendly error message
-            // You could add a toast notification here
           }
         }}
         className="p-4 border-t flex gap-2"
