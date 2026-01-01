@@ -219,5 +219,5 @@ You've learned:
 ---
 
 **Previous**: [Part 3: Tool Calling](./03-conversational-ai-part3-tool-calling.md)  
-**Next**: [Guide Index](./README.md) - Return to course overview
+**Next**: [Deployment Guide](./04-deployment.md)
 
