@@ -4,50 +4,20 @@ export default function Home() {
   return (
     <div className="min-h-screen p-8 bg-gray-50">
       <main className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-gray-900">Vercel AI SDK Tutorial</h1>
-        
+        <h1 className="text-4xl font-bold mb-8 text-gray-900">
+          AI SDK for Manufacturing
+        </h1>
+
         <p className="text-lg text-gray-600 mb-12">
-          Learn how to build AI applications with the Vercel AI SDK. Navigate to the lessons below to get started.
+          Learn how to build AI-powered manufacturing applications with the
+          Vercel AI SDK. Navigate to the lessons below to get started.
         </p>
 
         <div className="grid gap-6">
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Standard Lessons</h2>
-            <div className="grid gap-4">
-              <Link
-                href="/summarization"
-                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
-              >
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Lesson 3: Summarization</h3>
-                <p className="text-gray-600">
-                  Learn how to use AI to summarize text content and messages.
-                </p>
-              </Link>
-
-              <Link
-                href="/extraction"
-                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
-              >
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Lesson 4: Extraction</h3>
-                <p className="text-gray-600">
-                  Extract structured data from unstructured text using AI.
-                </p>
-              </Link>
-
-              <Link
-                href="/chat"
-                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
-              >
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Lesson 5: Chatbot</h3>
-                <p className="text-gray-600">
-                  Build an interactive chatbot with the Vercel AI SDK.
-                </p>
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">Manufacturing Examples</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">
+              Manufacturing Lessons
+            </h2>
             <p className="text-sm text-gray-600 mb-4">
               AI implementations for steel manufacturing plant operations
             </p>
@@ -56,9 +26,38 @@ export default function Home() {
                 href="/manufacturing/operator-assistant"
                 className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
               >
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Operator Assistant</h3>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                  Lesson 1: Invisible AI - Raw Material Forecasting
+                </h3>
                 <p className="text-gray-600">
-                  Chatbot with tool calling for querying production status and work orders.
+                  Learn how to automate order extraction, material calculation,
+                  and forecasting using invisible AI.
+                </p>
+              </Link>
+
+              <Link
+                href="/rag"
+                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                  Lesson 2: RAG - Manufacturing Knowledge Base
+                </h3>
+                <p className="text-gray-600">
+                  Build a knowledge base system with semantic search using
+                  chunking, embeddings, and cosine similarity.
+                </p>
+              </Link>
+
+              <Link
+                href="/manufacturing/operator-assistant"
+                className="block p-6 bg-white rounded-lg border border-gray-200 hover:border-gray-400 transition-colors shadow-sm hover:shadow-md"
+              >
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                  Lesson 3: Conversational AI - Operator Assistant
+                </h3>
+                <p className="text-gray-600">
+                  Create an interactive chatbot with tool calling for querying
+                  production status and work orders.
                 </p>
               </Link>
             </div>
@@ -67,15 +66,14 @@ export default function Home() {
 
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-500">
-            Follow the full tutorial at{" "}
-            <a 
-              href="https://vercel.com/academy/ai-sdk" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            Follow the complete guides in the{" "}
+            <Link
+              href="/guide"
               className="text-blue-600 hover:underline"
             >
-              vercel.com/academy/ai-sdk
-            </a>
+              /guide
+            </Link>{" "}
+            directory for detailed step-by-step instructions.
           </p>
         </div>
       </main>

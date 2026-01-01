@@ -1,18 +1,18 @@
-# Vercel AI SDK Tutorial - Starter Project
+# AI SDK for Manufacturing - Starter Project
 
-This is the starter project for the [Vercel AI SDK Academy Course](https://vercel.com/academy/ai-sdk), a comprehensive tutorial for building AI-powered applications using the Vercel AI SDK.
+This is a comprehensive tutorial project for building AI-powered manufacturing applications using the Vercel AI SDK, focused on steel manufacturing plant operations.
 
 ## About the Course
 
-The Vercel AI SDK is a free, open-source library for building AI-powered products. Created by Vercel, it enables developers to quickly integrate AI features into their projects.
+The Vercel AI SDK is a free, open-source library for building AI-powered products. This course teaches you how to apply AI SDK concepts specifically to manufacturing use cases.
 
 ### What You'll Learn
 
-This 12-hour course is divided into three sections:
+This course is divided into three lessons:
 
-- **Foundations**: Understand LLMs, prompting techniques, and basic AI SDK usage
-- **Invisible AI**: Build seamless AI features like classification and summarization
-- **Conversational AI**: Create interactive chatbots with advanced features
+- **Lesson 1: Invisible AI** - Automate data extraction and forecasting without user interaction
+- **Lesson 2: RAG** - Build knowledge bases with semantic search using chunking and embeddings
+- **Lesson 3: Conversational AI** - Create interactive chatbots with tool calling for real-time data
 
 ## Prerequisites
 
@@ -27,8 +27,8 @@ This 12-hour course is divided into three sections:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/vercel/ai-sdk-fundamentals-starter.git
-cd ai-sdk-fundamentals-starter
+git clone <repository-url>
+cd build-an-ai-app-starter-sep-25
 ```
 
 ### 2. Install Dependencies
@@ -39,7 +39,7 @@ pnpm install
 
 ### 3. Set Up Vercel AI Gateway
 
-This project uses [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) for unified AI model access with built-in reliability, monitoring, and load balancing.
+This project uses [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) for unified AI model access.
 
 #### Link Your Project to Vercel
 
@@ -55,7 +55,7 @@ vercel deploy
 vercel env pull
 ```
 
-This will create a `.env.local` file with your `VERCEL_OIDC_TOKEN` which is valid for 12 hours.
+This creates a `.env.local` file with your `VERCEL_OIDC_TOKEN` (valid for 12 hours).
 
 #### Configure AI Provider Keys
 
@@ -78,44 +78,65 @@ Open [http://localhost:3000](http://localhost:3000) to see the tutorial navigati
 
 ## Available Lessons
 
-This starter includes code for all course lessons:
+### Lesson 1: Invisible AI - Raw Material Forecasting
 
-### Command-Line Lessons
+Learn how to automate order extraction, material calculation, and forecasting.
 
-Run these lessons using the provided npm scripts:
+**Command-line scripts:**
+```bash
+# Extract order details from sample data
+pnpm manufacturing:extract-order
 
-- **Lesson 1: Extraction** - Extract structured data from text
+# Run complete forecasting pipeline
+pnpm manufacturing:forecast
+```
 
-  ```bash
-  pnpm run extraction
-  ```
+### Lesson 2: RAG - Manufacturing Knowledge Base
 
-- **Lesson 2: Classification** - Classify support requests
-  ```bash
-  pnpm run classification
-  ```
+Build a knowledge base system with semantic search.
 
-### Interactive Lessons
+**Command-line script:**
+```bash
+# Demo chunking and cosine similarity
+pnpm rag:demo
+```
 
-Access these through the web interface at [http://localhost:3000](http://localhost:3000):
+**Web interface:**
+- Navigate to `/rag` to interact with the knowledge base
 
-- **Lesson 3: Summarization** - Summarize message conversations
-- **Lesson 4: Extraction (Advanced)** - Extract calendar appointments from emails
-- **Lesson 5: Chatbot** - Build an interactive AI chatbot
+### Lesson 3: Conversational AI - Operator Assistant
+
+Create an interactive chatbot with tool calling.
+
+**Web interface:**
+- Navigate to `/manufacturing/operator-assistant` to use the chatbot
 
 ## Project Structure
 
 ```
 ├── app/
-│   ├── (1-extraction)/        # CLI extraction lesson
-│   ├── (2-classification)/    # CLI classification lesson
-│   ├── (3-summarization)/     # Web summarization lesson
-│   ├── (4-extraction)/        # Web extraction lesson
-│   ├── (5-chatbot)/          # Web chatbot lesson
-│   └── page.tsx              # Navigation homepage
-├── components/ui/            # Reusable UI components
-└── lib/                      # Utility functions
+│   ├── (1-invisible-ai-manufacturing)/    # Lesson 1: Invisible AI
+│   ├── (2-rag-manufacturing)/             # Lesson 2: RAG
+│   ├── (3-conversational-ai-manufacturing)/ # Lesson 3: Conversational AI
+│   ├── api/                               # API routes
+│   └── page.tsx                           # Homepage
+├── guide/                                 # Step-by-step learning guides
+├── components/ui/                         # Reusable UI components
+└── lib/                                   # Utility functions
+    ├── ai/
+    │   └── embedding.ts                   # Embedding generation and similarity
+    └── vector-store.ts                    # JSON-based vector storage
 ```
+
+## Learning Guides
+
+Comprehensive step-by-step guides are available in the `guide/` directory:
+
+- **[Guide Index](./guide/README.md)** - Start here for the learning path
+- **[Getting Started](./guide/00-getting-started.md)** - Setup and configuration
+- **Lesson 1 Guides** - Invisible AI (4 parts)
+- **Lesson 2 Guides** - RAG (5 parts)
+- **Lesson 3 Guides** - Conversational AI (4 parts)
 
 ## About Vercel AI Gateway
 
@@ -138,7 +159,6 @@ Vercel AI Gateway provides:
 
 ## Learn More
 
-- [Full Tutorial](https://vercel.com/academy/ai-sdk) - Complete the entire AI SDK course
 - [AI SDK Documentation](https://sdk.vercel.ai/docs) - Detailed SDK documentation
 - [Vercel AI Gateway Docs](https://vercel.com/docs/ai-gateway) - Gateway documentation
 - [Vercel AI Playground](https://sdk.vercel.ai/playground) - Experiment with AI models
@@ -146,5 +166,3 @@ Vercel AI Gateway provides:
 ## Deploy on Vercel
 
 The easiest way to deploy your AI application is using the [Vercel Platform](https://vercel.com).
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/ai-sdk-fundamentals-starter)

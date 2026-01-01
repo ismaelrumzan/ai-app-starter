@@ -1,0 +1,61 @@
+{
+  "iron_ore": [
+    {
+      "supplierName": "Iron Ore Suppliers Inc",
+      "leadTime": 14,
+      "reliability": 95,
+      "minOrder": 500
+    },
+    {
+      "supplierName": "Global Mining Co",
+      "leadTime": 21,
+      "reliability": 88,
+      "minOrder": 300
+    }
+  ],
+  "chromium": [
+    {
+      "supplierName": "Alloy Metals Ltd",
+      "leadTime": 30,
+      "reliability": 92,
+      "minOrder": 50
+    }
+  ],
+  "nickel": [
+    {
+      "supplierName": "Nickel Corp",
+      "leadTime": 45,
+      "reliability": 90,
+      "minOrder": 25
+    }
+  ],
+  "coal": [
+    {
+      "supplierName": "Coal Mining Industries",
+      "leadTime": 10,
+      "reliability": 93,
+      "minOrder": 200
+    }
+  ],
+  "limestone": [
+    {
+      "supplierName": "Limestone Quarries Ltd",
+      "leadTime": 7,
+      "reliability": 96,
+      "minOrder": 100
+    }
+  ],
+  "molybdenum": [
+    {
+      "supplierName": "Specialty Alloys Inc",
+      "leadTime": 60,
+      "reliability": 85,
+      "minOrder": 10
+    }
+  ]
+}
+
+
+
+
+
