@@ -59,6 +59,12 @@ Learn how to build interactive chatbots that can query real-time data from manuf
 - **[Part 3: Tool Calling](./03-conversational-ai-part3-tool-calling.md)** - Enabling AI to execute functions for real-time data
 - **[Part 4: Multi-Step Execution](./03-conversational-ai-part4-multi-step.md)** - Advanced tool chaining for complex queries
 
+### Deployment (30-45 minutes)
+
+Learn how to deploy your application to production and handle file system limitations.
+
+- **[Deployment Guide](./04-deployment.md)** - Deploying to Vercel and handling data files in production
+
 ## How to Use These Guides
 
 ### Self-Learning Tips
@@ -81,7 +87,8 @@ Learn how to build interactive chatbots that can query real-time data from manuf
 - **Lesson 1**: 2-3 hours (4 parts × 30-45 min each)
 - **Lesson 2**: 3-4 hours (5 parts × 30-45 min each)
 - **Lesson 3**: 2-3 hours (4 parts × 30-45 min each)
-- **Total**: 8-10 hours
+- **Deployment**: 30-45 minutes
+- **Total**: 9-11 hours
 
 ### Getting Help
 
